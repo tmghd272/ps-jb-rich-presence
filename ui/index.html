@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PS-JB Rich Presence</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app">
+
+    <h2>PS-JB Rich Presence</h2>
+
+    <div class="grid">
+
+      <!-- SETTINGS -->
+      <div class="box">
+        <h3>Settings</h3>
+
+        <label>IP</label>
+        <input id="ip" placeholder="0.0.0.0">
+
+        <label>Port</label>
+        <input id="port" value="2121">
+
+        <label class="check" title="Only use this if your PS FTP port is different">
+          <input type="checkbox" id="lockPort">
+          Custom FTP Port
+        </label>
+      </div>
+
+      <!-- DISCORD -->
+      <div class="box">
+        <h3>Discord</h3>
+
+        <label class="check" title="Optional. Devs only.">
+          <input type="checkbox" id="customIdToggle">
+          Custom Client ID
+        </label>
+
+        <input id="clientId" placeholder="Client ID" disabled>
+
+        <label class="check" title="Auto Start RPC on Launch">
+          <input type="checkbox" id="autoStartRPC">
+          Auto Start RPC on Launch
+        </label>
+
+        <label class="check" title="Automatically start PS-JB RPC on boot">
+          <input type="checkbox" id="startOnBoot">
+          Start on Windows Startup
+        </label>
+
+        <label class="check" title="Keep PS-JB RPC running in the background">
+          <input type="checkbox" id="minimizeToTray">
+          Minimize to Tray
+        </label>
+
+      </div>
+
+    </div>
+
+    <div class="buttons">
+      <button id="save">Save</button>
+      <button id="start">Start RPC</button>
+      <button id="stop">Stop</button>
+    </div>
+
+    <div id="status">Status: Stopped</div>
+
+    <!-- LOG CONSOLE -->
+    <div id="log"></div>
+    <div class="credit">@TMGHD272</div>
+
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
