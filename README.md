@@ -31,8 +31,8 @@
 
 ## Installation and Setup
 
-* Download the release to get started. Simply run the exe and type in your PS4/PS5 FTP `0.0.0.0` IP. Click save and Start RPC!
-* To have it fully automatically run in the background without having to always open it manually.
+* Download the [release](https://github.com/tmghd272/ps-jb-rich-presence/releases/tag/ps-jb-rich-presence_release) to get started. Simply run the exe and type in your PS4/PS5 FTP `0.0.0.0` IP. Click save and Start RPC!
+* To have it fully automatically run in the background without having to always open it manually:
 * Simply toggle `Auto Start RPC on Launch`, `Start on Windows Startup`, and `Minimize to Tray` depending on your choice.
 
 ---
