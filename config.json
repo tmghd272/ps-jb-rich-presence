@@ -1,0 +1,9 @@
+{
+  "PS_IP": "",
+  "PS_PORT": "2121",
+  "POLL_INTERVAL": 5000,
+  "DISCORD_CLIENT_ID": "1504939441758797998",
+  "AUTO_START_RPC": false,
+  "START_ON_BOOT": false,
+  "MINIMIZE_TO_TRAY": false
+}

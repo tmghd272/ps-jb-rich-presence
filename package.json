@@ -1,0 +1,50 @@
+{
+  "name": "ps-jb-discord-rpc",
+  "version": "1.0.0",
+  "description": "PS-JB Discord RPC",
+  "author": "TMGHD272",
+  "main": "electron.js",
+  "type": "commonjs",
+
+  "scripts": {
+    "start": "node node_modules/electron/cli.js .",
+    "rpc": "node main.js",
+    "dist": "electron-builder --win portable"
+  },
+
+  "build": {
+    "appId": "psjb.rpc",
+    "productName": "PS-JB Rich Presence",
+
+    "directories": {
+      "output": "dist"
+    },
+
+    "files": [
+      "**/*"
+    ],
+
+    "win": {
+      "icon": "psjblogo.ico",
+      "target": "portable"
+    },
+
+    "nsis": null,
+
+    "asar": false
+  },
+
+  "dependencies": {
+    "axios": "^1.16.1",
+    "basic-ftp": "^6.0.1",
+    "cheerio": "^1.2.0",
+    "discord-rpc": "^4.0.1",
+    "electron-auto-launch": "^5.0.7",
+    "express": "^5.2.1"
+  },
+
+  "devDependencies": {
+    "electron": "^42.1.0",
+    "electron-builder": "^26.8.1"
+  }
+}
