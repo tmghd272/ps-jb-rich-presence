@@ -1,7 +1,30 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
+const fs = require("fs");
+const path = require("path");
 
 const cache = {};
+
+// -----------------------------
+// Load custom ID config (single JSON file)
+// -----------------------------
+const configPath = path.join(__dirname, "customid.json");
+
+function loadConfig() {
+  try {
+    return JSON.parse(fs.readFileSync(configPath, "utf8"));
+  } catch (e) {
+    console.log("[CONFIG] Failed to load customid.json");
+    return { block: [], allow: {} };
+  }
+}
+
+let config = loadConfig();
+
+// optional reload helper if you want hot updates later
+function reloadConfig() {
+  config = loadConfig();
+}
 
 // -----------------------------
 // Uses PS FTP sandbox TitleID (CUSA/PPSA) and queries Orbis/Prospero Patches API page
@@ -12,6 +35,28 @@ async function resolveAll(titleId) {
 
   if (cache[titleId]) return cache[titleId];
 
+  // -----------------------------
+  // BLOCK LIST (highest priority)
+  // -----------------------------
+  if (config.block?.includes(titleId)) {
+    return null;
+  }
+
+  // -----------------------------
+  // CUSTOM OVERRIDE (second priority)
+  // -----------------------------
+  if (config.allow?.[titleId]) {
+    const override = config.allow[titleId];
+
+    const result = {
+      name: override.name || titleId,
+      icon: override.icon || null
+    };
+
+    cache[titleId] = result;
+    return result;
+  }
+
   const url = titleId.startsWith("PPSA")
     ? `https://prosperopatches.com/${titleId}`
     : `https://orbispatches.com/${titleId}`;
@@ -20,14 +65,18 @@ async function resolveAll(titleId) {
 
   const finalName = name || titleId;
 
-  cache[titleId] = { name: finalName, icon };
+  const result = {
+    name: finalName,
+    icon
+  };
 
-  return cache[titleId];
+  cache[titleId] = result;
+
+  return result;
 }
 
 // -----------------------------
-// Parses Orbis/Prospero Patches- 
-// -HTML using game titleID.
+// Parses Orbis/Prospero Patches HTML using game titleID
 // -----------------------------
 async function scrapePage(url) {
   try {
@@ -41,12 +90,10 @@ async function scrapePage(url) {
     const html = res.data;
     const $ = cheerio.load(html);
 
-    // Parse game name
     const name = $("h1").first().text().trim() || null;
 
     let icon = null;
 
-    // Parse image icon
     $("img").each((_, el) => {
       const src = $(el).attr("src") || "";
       if (!icon && src.includes("icon0")) {
@@ -54,7 +101,6 @@ async function scrapePage(url) {
       }
     });
 
-    // CSS background:url
     if (!icon) {
       const cssMatch = html.match(
         /url\(["']?(https:\/\/cdn\.[^"')]+icon0\.(webp|png|jpg))["']?\)/
@@ -63,7 +109,6 @@ async function scrapePage(url) {
       if (cssMatch) icon = cssMatch[1];
     }
 
-    // GLOBAL CDN fallback
     if (!icon) {
       const raw = html.match(
         /https:\/\/cdn\.[^"' <>]+icon0\.(webp|png|jpg)/
