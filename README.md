@@ -17,6 +17,7 @@
 </p>
 <p align="center">
   <img src="assets/psjb_review.png" width="450"/>
+  <img src="assets/psjb_titleidmanager_review.png" width="450"/>
 </p>
 
 ---
@@ -39,7 +40,7 @@
 
 ## Misc
 
-* Only supports official PlayStation games & apps, no support for homebrew apps
+* Only supports official PlayStation games & apps, ~~no support for homebrew apps~~ you can now add your own TitleID and customize it's game name/icon. CUSA/PPSA TitleID are also customizable.
 * And yes, this app is heavily open-sourced. You can use your own [Discord Application ID](https://discord.com/developers/home) if you want to.
 
 ---
