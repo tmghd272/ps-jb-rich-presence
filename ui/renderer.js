@@ -19,6 +19,15 @@ const startBtn = document.getElementById("start");
 const stopBtn = document.getElementById("stop");
 const saveBtn = document.getElementById("save");
 
+// ---------------- CUSTOM PAGE NAVIGATION ----------------
+const customtitleidPageBtn = document.getElementById("customtitleidPage");
+
+function opencustomtitleidPage() {
+  window.location.href = "customid.html";
+}
+
+customtitleidPageBtn?.addEventListener("click", opencustomtitleidPage);
+
 // ---------------- AUTO START GUARD ----------------
 let autoStarted = false;
 

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PS-JB Rich Presence (Custom TitleID Tool)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body id="customtitleidPage">
+  <div class="app">
+
+    <h2>TitleID Manager</h2>
+
+    <div class="grid">
+
+      <div class="box">
+
+        <h3>Add / Select TitleID</h3>
+
+        <input id="idInput" class="input" placeholder="CUSA / PPSA / TEST00001">
+
+        <label class="check" title="Exclude TitleID from RPC Status">
+          <input type="checkbox" id="blockToggle">
+          Block TitleID?
+        </label>
+
+        <button id="addBtn" class="btn">Add TitleID</button>
+        <button id="removeBtn" class="btn btn-danger">Remove Selected</button>
+
+        <h3>Preview</h3>
+
+        <div id="preview" class="preview">
+          <div id="previewText" class="previewText"></div>
+          <img id="previewIcon" class="previewIcon">
+        </div>
+
+      </div>
+
+      <div class="box">
+
+        <h3 title="These TitleIDs will be excluded from RPC status">Blocked TitleIDs</h3>
+        <select id="blockSelect" class="select" size="8"></select>
+        
+        <h3 title="Added custom TitleIDs will appear here. Select one to preview or edit.">Custom TitleIDs</h3>
+        <select id="allowSelect" class="select" size="8"></select>
+
+        <h3>Edit Status</h3>
+
+        <input id="nameInput" class="input" placeholder="Custom name">
+        <input id="iconInput" class="input" placeholder="Icon URL">
+
+      </div>
+
+    </div>
+
+    <div class="buttons">
+      <button id="back" class="btn">Back</button>
+      <button id="saveBtn" class="btn">Save Changes</button>
+    </div>
+    <div class="credit">@TMGHD272</div>
+
+  </div>
+
+<script>
+const { ipcRenderer } = require("electron");
+
+let config = { block: [], allow: {} };
+
+let selectedId = null;
+let selectedMode = null;
+
+// ---------------- ELEMENTS ----------------
+const idInput = document.getElementById("idInput");
+const blockToggle = document.getElementById("blockToggle");
+
+const previewText = document.getElementById("previewText");
+const previewIcon = document.getElementById("previewIcon");
+
+const blockSelect = document.getElementById("blockSelect");
+const allowSelect = document.getElementById("allowSelect");
+
+const nameInput = document.getElementById("nameInput");
+const iconInput = document.getElementById("iconInput");
+
+// ---------------- PREVIEW SYSTEM ----------------
+function setPreview(text, isEmpty = false) {
+  previewText.innerText = text;
+
+  if (isEmpty) {
+    previewText.classList.add("empty");
+  } else {
+    previewText.classList.remove("empty");
+  }
+}
+
+// ---------------- LOAD ----------------
+ipcRenderer.send("get-custom-config");
+
+ipcRenderer.on("custom-config-data", (_, data) => {
+  config = data || { block: [], allow: {} };
+  render();
+});
+
+// ---------------- RENDER ----------------
+function render() {
+  blockSelect.innerHTML = "";
+  allowSelect.innerHTML = "";
+
+  (config.block || []).forEach(id => {
+    const opt = document.createElement("option");
+    opt.value = id;
+    opt.textContent = id;
+    blockSelect.appendChild(opt);
+  });
+
+  Object.keys(config.allow || {}).forEach(id => {
+    const opt = document.createElement("option");
+    opt.value = id;
+    opt.textContent = id;
+    allowSelect.appendChild(opt);
+  });
+
+  // restore selection safely
+  if (selectedMode === "block") blockSelect.value = selectedId;
+  if (selectedMode === "allow") allowSelect.value = selectedId;
+}
+
+// ---------------- BLOCK SELECT ----------------
+blockSelect.onchange = () => {
+  allowSelect.selectedIndex = -1; // deselect other list
+
+  selectedId = blockSelect.value;
+  selectedMode = "block";
+
+  previewText.innerText = "Blocked: " + selectedId;
+  previewText.classList.remove("empty");
+  previewIcon.style.display = "none";
+
+  nameInput.value = "";
+  iconInput.value = "";
+};
+
+// ---------------- ALLOW SELECT ----------------
+allowSelect.onchange = () => {
+  blockSelect.selectedIndex = -1; // deselect other list
+
+  selectedId = allowSelect.value;
+  selectedMode = "allow";
+
+  const data = config.allow?.[selectedId];
+  if (!data) return;
+
+  previewText.innerText = `${data.name || selectedId} (${selectedId})`;
+  previewText.classList.remove("empty");
+
+  if (data.icon) {
+    previewIcon.src = data.icon;
+    previewIcon.style.display = "block";
+  } else {
+    previewIcon.style.display = "none";
+  }
+
+  nameInput.value = data.name || "";
+  iconInput.value = data.icon || "";
+};
+
+// ---------------- ADD ----------------
+document.getElementById("addBtn").onclick = () => {
+  const id = (idInput.value || "").trim().toUpperCase();
+  if (!id) return;
+
+  const isBlocked = blockToggle.checked;
+
+  // clean duplicates first
+  config.block = (config.block || []).filter(x => x !== id);
+  delete config.allow[id];
+
+  if (isBlocked) {
+    config.block.push(id);
+  } else {
+    config.allow[id] = {
+      name: "",
+      icon: ""
+    };
+  }
+
+  idInput.value = "";
+
+  save();
+};
+
+// ---------------- SAVE CORE ----------------
+function save() {
+  ipcRenderer.send("save-custom-config", config);
+
+  // force sync refresh from backend
+  ipcRenderer.send("get-custom-config");
+}
+
+// ---------------- SAVE EDIT ----------------
+document.getElementById("saveBtn").onclick = () => {
+  if (!selectedId || selectedMode !== "allow") return;
+
+  const saveBtn = document.getElementById("saveBtn");
+  const originalText = saveBtn.innerText;
+
+  config.allow[selectedId] = {
+    name: nameInput.value.trim(),
+    icon: iconInput.value.trim()
+  };
+
+  save();
+
+  // Keep Current Preview (DON'T RESET STATE)
+  const data = config.allow[selectedId];
+
+  previewText.innerText = `${data.name || selectedId} (${selectedId})`;
+  previewText.classList.remove("empty");
+
+  if (data.icon) {
+    previewIcon.src = data.icon;
+    previewIcon.style.display = "block";
+  }
+
+  // refresh list UI but restore selection after reload
+  setTimeout(() => {
+    allowSelect.value = selectedId;
+  }, 0);
+
+  // button feedback
+  saveBtn.innerText = "Saved!";
+  saveBtn.disabled = true;
+
+  setTimeout(() => {
+    saveBtn.innerText = originalText;
+    saveBtn.disabled = false;
+  }, 1500);
+};
+
+// ---------------- REMOVE ----------------
+document.getElementById("removeBtn").onclick = () => {
+  if (!selectedId) return;
+
+  config.block = (config.block || []).filter(x => x !== selectedId);
+  delete config.allow[selectedId];
+
+  selectedId = null;
+  selectedMode = null;
+
+  nameInput.value = "";
+  iconInput.value = "";
+
+  save();
+};
+
+// ---------------- BACK ----------------
+document.getElementById("back").onclick = () => {
+  ipcRenderer.send("restart-app");
+};
+</script>
+
+</body>
+</html>

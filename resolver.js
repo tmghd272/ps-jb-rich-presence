@@ -6,7 +6,7 @@ const path = require("path");
 const cache = {};
 
 // -----------------------------
-// Load custom ID config (single JSON file)
+// Load Custom TitleID config (customid.json)
 // -----------------------------
 const configPath = path.join(__dirname, "customid.json");
 
@@ -21,7 +21,6 @@ function loadConfig() {
 
 let config = loadConfig();
 
-// optional reload helper if you want hot updates later
 function reloadConfig() {
   config = loadConfig();
 }
@@ -36,14 +35,14 @@ async function resolveAll(titleId) {
   if (cache[titleId]) return cache[titleId];
 
   // -----------------------------
-  // BLOCK LIST (highest priority)
+  // BLOCK LIST
   // -----------------------------
   if (config.block?.includes(titleId)) {
     return null;
   }
 
   // -----------------------------
-  // CUSTOM OVERRIDE (second priority)
+  // CUSTOM OVERRIDE
   // -----------------------------
   if (config.allow?.[titleId]) {
     const override = config.allow[titleId];

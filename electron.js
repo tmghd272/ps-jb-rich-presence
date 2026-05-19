@@ -84,7 +84,47 @@ function saveConfig(data) {
   }
 }
 
-// ---------- STARTUP (ELECTRON NATIVE) ----------
+// ---------- CONFIG For (Custom TitleIDs) ----------
+const getCustomConfigPath = () => {
+  return path.join(__dirname, "customid.json");
+};
+
+function loadCustomConfig() {
+  const file = getCustomConfigPath();
+
+  if (!fs.existsSync(file)) {
+    const defaultCustom = {
+      block: [],
+      allow: {}
+    };
+
+    fs.writeFileSync(file, JSON.stringify(defaultCustom, null, 2));
+    return defaultCustom;
+  }
+
+  try {
+    return JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch (e) {
+    console.error("Failed to load custom config:", e);
+    return {
+      block: [],
+      allow: {}
+    };
+  }
+}
+
+function saveCustomConfig(data) {
+  const file = getCustomConfigPath();
+
+  try {
+    fs.writeFileSync(file, JSON.stringify(data, null, 2));
+    console.log("Custom config saved to:", file);
+  } catch (e) {
+    console.error("Failed to save custom config:", e);
+  }
+}
+
+// ---------- STARTUP ----------
 function toggleStartup(enable) {
   if (!app.isPackaged) {
     console.log("Startup toggle only works in packaged version");
@@ -137,7 +177,7 @@ function createTray() {
 
 // ---------- WINDOW ----------
 function createWindow() {
-  const config = loadConfig(); // decide BEFORE window shows
+  const config = loadConfig(); // decide before window shows
 
   mainWindow = new BrowserWindow({
     width: 520,
@@ -154,8 +194,10 @@ function createWindow() {
 
   mainWindow.loadFile(path.join(__dirname, "ui", "index.html"));
 
+  const forceShow = process.argv.includes("--show-window");
+
   // SHOW ONLY IF NOT IN TRAY MODE
-  if (!config.MINIMIZE_TO_TRAY) {
+  if (!config.MINIMIZE_TO_TRAY || forceShow) {
     mainWindow.show();
   }
 
@@ -210,6 +252,7 @@ function startRPC(uiConfig) {
 }
 
 // ---------- IPC ----------
+//config.json
 ipcMain.on("get-config", (event) =>
   event.reply("config-data", loadConfig())
 );
@@ -224,9 +267,26 @@ ipcMain.on("save-config", (event, newData) => {
   event.reply("config-data", updated);
 });
 
+//customid.json
+ipcMain.on("get-custom-config", (event) => {
+  event.reply("custom-config-data", loadCustomConfig());
+});
+
+ipcMain.on("save-custom-config", (event, data) => {
+  saveCustomConfig(data);
+  event.reply("custom-config-data", data);
+});
+
 ipcMain.on("start-rpc", (event, uiConfig) => startRPC(uiConfig));
 ipcMain.on("stop-rpc", () => backendProcess?.kill());
 
+ipcMain.on("restart-app", () => {
+  app.relaunch({
+    args: process.argv.concat(["--show-window"])
+  });
+
+  app.exit();
+});
 // ---------- APPLY SETTINGS ----------
 function applySettings() {
   const config = loadConfig();

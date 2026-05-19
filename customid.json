@@ -1,24 +1,22 @@
 {
-  "block": [
-    "",
-    ""
-  ],
+  "block": [],
   "allow": {
+    "ITEM00001": {
+      "name": "Itemzflow Game Manager",
+      "icon": "https://pkg-zone.com/images/ITEM00001/cover.png"
+    },
     "CUSA27390": {
       "name": "ハミダシクリエイティブ体験版",
       "icon": "https://image.api.playstation.com/gs2-sec/appkgo/prod/CUSA27390_00/1/i_bc3306003bbc65a1b8cd74d81d9142639fbcd52f388c3b59c866672f5761ca15/i/icon0.png"
     },
-
     "CUSA17126": {
       "name": "IxSHE Tell 体験版",
       "icon": "https://image.api.playstation.com/gs2-sec/appkgo/prod/CUSA17126_00/1/i_15d279097103a5797fbba195fddec104954fe45a01a34455498965507668805a/i/icon0.png"
     },
-
     "CUSA25180": {
       "name": "ジンキ・リザレクション 体験版",
       "icon": "https://image.api.playstation.com/gs2-sec/appkgo/prod/CUSA25180_00/1/i_18aa3645f970cae29dae8321ad713807ea1789d99757538f63d97a652ce59d1e/i/icon0.png"
     },
-
     "CUSA29746": {
       "name": "フユキス体験版",
       "icon": "https://image.api.playstation.com/gs2-sec/appkgo/prod/CUSA29746_00/1/i_84b870a7d2ba93b7704eff9074b43dc1f6531c3c493ad595efb67a941db4b466/i/icon0.png"
