@@ -16,8 +16,8 @@
   
 </p>
 <p align="center">
-  <img src="assets/psjb_review.png" width="450"/>
-  <img src="assets/psjb_titleidmanager_review.png" width="450"/>
+  <img src="assets/psjb_review.png" width="400"/>
+  <img src="assets/psjb_titleidmanager_review.png" width="400"/>
 </p>
 
 ---
